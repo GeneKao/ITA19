@@ -34,18 +34,27 @@ class Shell(Mesh):
 
     def fofin(self):
         # fofin input
-        xyz = mesh.get_vertices_attributes('xyz')
-        fixed = list(mesh.vertices_where({'is_fixed': True}))
-        loads = mesh.get_vertices_attributes(('px', 'py', 'pz'))
-        edges = list(mesh.edges())
-        q = mesh.get_edges_attribute('q')
+        xyz = self.get_vertices_attributes('xyz')
+        fixed = list(self.vertices_where({'is_fixed': True}))
+        loads = self.get_vertices_attributes(('px', 'py', 'pz'))
+        edges = list(self.edges())
+        q = self.get_edges_attribute('q')
         # fofin run
-        ...
+        xyz, q, f, l, r = fd_numpy(xyz, edges, fixed, q, loads)
         # fofin update
-        ...
+        for key, attr in self.vertices(True):
+            attr['x'] = xyz[key][0]
+            attr['y'] = xyz[key][1]
+            attr['z'] = xyz[key][2]
+            attr['rx'] = r[key][0]
+            attr['ry'] = r[key][1]
+            attr['rz'] = r[key][2]
+
+        for index, (u, v, attr) in enumerate(self.edges(True)):
+            attr['f'] = f[index][0]
 
 
-class ShellArtist(...):
+class ShellArtist(MeshArtist):
     
     def draw_forces(self, scale=1.0, layer="Mesh::Forces"):
         forces = []
@@ -59,10 +68,23 @@ class ShellArtist(...):
                 'end': end,
                 'radius': radius,
                 'color': (255, 0, 0)})
-        compas_rhino.draw_cylinders(forces, layer=..., clear=True)
+        compas_rhino.draw_cylinders(forces, layer=layer, clear=True)
 
     def draw_reactions(self, scale=1.0, layer="Mesh::Reactions"):
-        ...
+        reactions = []
+        for key, attr in self.datastructure.vertices_where({'is_fixed': True}, True):
+            reaction = [attr['rx'], attr['ry'], attr['rz']]
+            vector = scale_vector(reaction, scale)
+            start = self.datastructure.vertex_coordinates(key)
+            end = add_vectors(start, vector)
+            reactions.append({
+                'start': start,
+                'end': end,
+                'arrow': 'end',
+                'color': (0, 255, 0)})
+
+        compas_rhino.draw_lines(
+            reactions, layer=layer, clear=True)
 
 
 # ==============================================================================

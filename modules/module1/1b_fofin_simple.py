@@ -32,11 +32,11 @@ mesh.update_default_edge_attributes({'q': 1.0, 'f': 0.0, 'rx': 0.0, 'ry': 0.0, '
 # Vertex attributes
 # ==============================================================================
 
-corners = ...(mesh.vertices_where({'...': 2}))
+corners = list(mesh.vertices_where({'vertex_degree': 2}))
 high = [0, 35]
 
 mesh.set_vertices_attribute('is_fixed', True, keys=corners)
-mesh.set_vertices_attribute('z', ..., keys=high)
+mesh.set_vertices_attribute('z', 7.0, keys=high)
 
 # ==============================================================================
 # Edge attributes
@@ -53,6 +53,6 @@ mesh.set_edges_attribute('q', 5.0, keys=boundary)
 artist = MeshArtist(mesh, layer="Mesh")
 artist.clear_layer()
 artist.draw_vertices(
-    color={key: (..., 0, 0) for key in mesh.vertices_where({'...': True})})
+    color={key: (255, 0, 0) for key in mesh.vertices_where({'is_fixed': True})})
 artist.draw_edges()
 artist.draw_faces()

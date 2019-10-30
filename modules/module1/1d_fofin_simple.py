@@ -99,31 +99,31 @@ artist.draw_edges()
 artist.draw_faces()
 
 forces = []
-for ..., ..., ... in mesh.edges(True):
-    force = attr['...']
-    ... = mesh.vertex_coordinates(u)
-    ... = mesh.vertex_coordinates(v)
+for u, v, attr in mesh.edges(True):
+    force = attr['f']
+    start = mesh.vertex_coordinates(u)
+    end = mesh.vertex_coordinates(v)
     radius = 0.01 * force
     forces.append({
         'start': start,
         'end': end,
         'radius': radius,
-        'color': (..., ..., ...)})
+        'color': (255, 0, 0)})
 
 compas_rhino.draw_cylinders(
     forces, layer="Mesh::Forces", clear=True)
 
 reactions = []
-for key, attr in mesh.vertices_where({'...': True}, True):
-    reaction = [attr['...'], attr['...'], attr['...']]
-    vector = scale_vector(reaction, ...)
+for key, attr in mesh.vertices_where({'is_fixed': True}, True):
+    reaction = [attr['rx'], attr['ry'], attr['rz']]
+    vector = scale_vector(reaction, -0.1)
     start = mesh.vertex_coordinates(key)
     end = add_vectors(start, vector)
     reactions.append({
         'start': start,
         'end': end,
         'arrow': 'end',
-        'color': (..., ..., ...)})
+        'color': (0, 255, 0)})
 
 compas_rhino.draw_lines(
     reactions, layer="Mesh::Reactions", clear=True)
